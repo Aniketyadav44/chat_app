@@ -36,7 +36,7 @@ class GroupTile extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Container(
-                        width: width * 0.52,
+                        width: width * 0.55,
                         child: Text(
                           groupData!["data"]["name"],
                           overflow: TextOverflow.ellipsis,
@@ -45,13 +45,15 @@ class GroupTile extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        DateFormat('hh:mm a')
-                            .format((groupData!["data"]["recent_message"]
-                                    ["time"])
-                                .toDate())
-                            .toLowerCase(),
+                        (groupData!["data"]["recent_message"] != null
+                            ? DateFormat('hh:mm a')
+                                .format((groupData!["data"]["recent_message"]
+                                        ["time"])
+                                    .toDate())
+                                .toLowerCase()
+                            : ""),
                         style: const TextStyle(
-                          fontSize: 13,
+                          fontSize: 12,
                           color: Colors.grey,
                           fontWeight: FontWeight.w600,
                         ),
@@ -60,7 +62,9 @@ class GroupTile extends StatelessWidget {
                   ),
                   const SizedBox(height: 5),
                   Text(
-                    "${groupData!["data"]["recent_message"]["sentBy"]}: ${groupData!["data"]["recent_message"]["message"]}",
+                    groupData!["data"]["recent_message"] != null
+                        ? "${groupData!["data"]["recent_message"]["sentBy"]}: ${groupData!["data"]["recent_message"]["message"]}"
+                        : "",
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(fontSize: 15, color: Colors.grey),
                   ),

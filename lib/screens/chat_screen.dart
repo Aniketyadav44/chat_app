@@ -57,10 +57,22 @@ class ChatScreen extends StatelessWidget {
           ),
         ),
         actions: [
-          IconButton(
-            onPressed: () {},
-            icon: Icon(Icons.more_vert),
-          ),
+          PopupMenuButton(
+            itemBuilder: (context) {
+              return [
+                PopupMenuItem<int>(
+                  value: 0,
+                  child: Container(
+                    width: width * 0.5,
+                    child: Text("Group Info"),
+                  ),
+                ),
+              ];
+            },
+            onSelected: (value) {
+              if (value == 0) {}
+            },
+          )
         ],
       ),
       body: Text("Chat screen"),
