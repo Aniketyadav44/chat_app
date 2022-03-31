@@ -36,7 +36,7 @@ class _ChatScreenState extends State<ChatScreen> {
       if (xFile != null) {
         pickedFile = File(xFile.path);
         pickedFileName = xFile.name.toString();
-        uploadFile("image");
+        uploadImage();
       }
     });
   }
@@ -48,6 +48,32 @@ class _ChatScreenState extends State<ChatScreen> {
       pickedFile = a;
       pickedFileName = result.names[0].toString();
       uploadFile("file");
+    }
+  }
+
+  Future uploadImage() async {
+    try {
+      var sentData = await _firestore
+          .collection("groups")
+          .doc(widget.groupData!["id"])
+          .collection("chats")
+          .add({
+        "link": "",
+        "message": pickedFileName,
+        "sendBy": _auth.currentUser!.displayName,
+        "time": FieldValue.serverTimestamp(),
+        "type": "image",
+      });
+      var ref =
+          FirebaseStorage.instance.ref().child("images").child(pickedFileName!);
+
+      var uploadTask = await ref.putFile(pickedFile!);
+
+      String fileUrl = await uploadTask.ref.getDownloadURL();
+
+      await sentData.update({"link": fileUrl});
+    } catch (e) {
+      Fluttertoast.showToast(msg: e.toString());
     }
   }
 
@@ -276,8 +302,13 @@ class _ChatScreenState extends State<ChatScreen> {
               padding: EdgeInsets.symmetric(vertical: 10, horizontal: 14),
               margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15),
-                color: Colors.blue,
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(10),
+                      bottomRight: Radius.circular(10),
+                      bottomLeft: Radius.circular(10)),
+                  color: Colors.blue),
+              constraints: BoxConstraints(
+                maxWidth: size.width * 0.7,
               ),
               child: Text(
                 map['message'],
@@ -291,7 +322,7 @@ class _ChatScreenState extends State<ChatScreen> {
           )
         : map["type"] == "image"
             ? Container(
-                height: size.height / 2.5,
+                height: size.width * 0.5,
                 width: size.width,
                 padding: EdgeInsets.symmetric(vertical: 5, horizontal: 5),
                 alignment: map['sendby'] == _auth.currentUser!.displayName
@@ -306,14 +337,36 @@ class _ChatScreenState extends State<ChatScreen> {
                     ),
                   ),
                   child: Container(
-                    height: size.height / 2.5,
-                    width: size.width / 2,
-                    decoration: BoxDecoration(border: Border.all()),
+                    width: size.width * 0.5,
+                    decoration: BoxDecoration(
+                        border: Border.all(color: Colors.blue, width: 5),
+                        borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(10),
+                            bottomRight: Radius.circular(10),
+                            bottomLeft: Radius.circular(10)),
+                        color: Colors.grey[400]),
                     alignment: Alignment.center,
-                    child: Image.network(
-                      map['link'],
-                      fit: BoxFit.cover,
-                    ),
+                    child: map['link'] != ""
+                        ? Image.network(
+                            map["link"],
+                            fit: BoxFit.fill,
+                            loadingBuilder: (BuildContext context, Widget child,
+                                ImageChunkEvent? loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return Center(
+                                child: CircularProgressIndicator(
+                                  value: loadingProgress.expectedTotalBytes !=
+                                          null
+                                      ? loadingProgress.cumulativeBytesLoaded /
+                                          loadingProgress.expectedTotalBytes!
+                                      : null,
+                                ),
+                              );
+                            },
+                          )
+                        : Center(
+                            child: CircularProgressIndicator(),
+                          ),
                   ),
                 ),
               )
