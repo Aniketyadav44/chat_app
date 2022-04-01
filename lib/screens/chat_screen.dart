@@ -248,6 +248,8 @@ class _ChatScreenState extends State<ChatScreen> {
                     height: size.height / 12,
                     width: size.width / 1.3,
                     child: TextField(
+                      keyboardType: TextInputType.multiline,
+                      maxLines: null,
                       controller: _message,
                       autocorrect: true,
                       decoration: InputDecoration(
@@ -310,12 +312,16 @@ class _ChatScreenState extends State<ChatScreen> {
               constraints: BoxConstraints(
                 maxWidth: size.width * 0.7,
               ),
-              child: Text(
+              child: SelectableText(
                 map['message'],
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
                   color: Colors.white,
+                ),
+                toolbarOptions: ToolbarOptions(
+                  copy: true,
+                  selectAll: true,
                 ),
               ),
             ),

@@ -18,7 +18,8 @@ class _GroupsListState extends State<GroupsList> {
 
   bool isLoading = false;
 
-  List? userGroups = [];
+  List? groupsList = [];
+  Map? userData = {};
 
   void loadGroups() async {
     setState(() {
@@ -37,8 +38,52 @@ class _GroupsListState extends State<GroupsList> {
           .toList();
 
       setState(() {
-        userGroups = groups;
+        groupsList = groups;
       });
+    });
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  loadMentorGroups() async {
+    setState(() {
+      isLoading = true;
+    });
+    await _firestore
+        .collection("groups")
+        .where("mentors", arrayContains: {"id": _auth.currentUser!.uid})
+        .get()
+        .then((value) {
+          final groups = value.docs
+              .map((doc) => {
+                    "id": doc.id,
+                    "data": doc.data(),
+                  })
+              .toList();
+
+          setState(() {
+            groupsList = groups;
+          });
+        });
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  loadUserData() async {
+    setState(() {
+      isLoading = true;
+    });
+    await _firestore
+        .collection("users")
+        .doc(_auth.currentUser!.uid)
+        .get()
+        .then((value) {
+      setState(() {
+        userData = value.data();
+      });
+      userData!["role"] == "student" ? loadGroups() : loadMentorGroups();
     });
     setState(() {
       isLoading = false;
@@ -49,7 +94,7 @@ class _GroupsListState extends State<GroupsList> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    loadGroups();
+    loadUserData();
   }
 
   @override
@@ -57,16 +102,17 @@ class _GroupsListState extends State<GroupsList> {
     final width = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(
-        title: Text('Groups'),
+        title:
+            Text(userData!["role"] == "student" ? "Groups" : "Groups(Mentor)"),
       ),
       body: isLoading
           ? Center(child: CircularProgressIndicator())
-          : userGroups == null || userGroups!.isEmpty
+          : groupsList == null || groupsList!.isEmpty
               ? Center(
                   child: Text("No Groups Found!"),
                 )
               : ListView.builder(
-                  itemCount: userGroups!.length,
+                  itemCount: groupsList!.length,
                   itemBuilder: (context, index) {
                     return InkWell(
                       onTap: () {
@@ -74,14 +120,14 @@ class _GroupsListState extends State<GroupsList> {
                           context,
                           CupertinoPageRoute(
                             builder: (_) => ChatScreen(
-                              groupData: userGroups![index],
-                              groupId: userGroups![index]["id"],
+                              groupData: groupsList![index],
+                              groupId: groupsList![index]["id"],
                             ),
                           ),
                         );
                       },
                       child: GroupTile(
-                        groupData: userGroups![index],
+                        groupData: groupsList![index],
                       ),
                     );
                   }),
