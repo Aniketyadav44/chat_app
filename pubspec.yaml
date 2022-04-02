@@ -43,6 +43,7 @@ dependencies:
   firebase_storage: ^10.2.9
   firebase_core: ^1.13.1
   file_picker: ^4.5.1
+  path: ^1.8.0
 
 dev_dependencies:
   flutter_test:

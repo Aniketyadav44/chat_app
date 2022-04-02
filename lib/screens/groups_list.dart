@@ -52,20 +52,20 @@ class _GroupsListState extends State<GroupsList> {
     });
     await _firestore
         .collection("groups")
-        .where("mentors", arrayContains: {"id": _auth.currentUser!.uid})
+        .where("mentors", arrayContains: _auth.currentUser!.uid)
         .get()
         .then((value) {
-          final groups = value.docs
-              .map((doc) => {
-                    "id": doc.id,
-                    "data": doc.data(),
-                  })
-              .toList();
+      final groups = value.docs
+          .map((doc) => {
+                "id": doc.id,
+                "data": doc.data(),
+              })
+          .toList();
 
-          setState(() {
-            groupsList = groups;
-          });
-        });
+      setState(() {
+        groupsList = groups;
+      });
+    });
     setState(() {
       isLoading = false;
     });

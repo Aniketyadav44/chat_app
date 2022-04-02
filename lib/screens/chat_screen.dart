@@ -1,3 +1,6 @@
+import 'package:chat_new/widgets/file_msg_tile.dart';
+import 'package:chat_new/widgets/image_msg_tile.dart';
+import 'package:chat_new/widgets/message_tile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -6,6 +9,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import "package:image_picker/image_picker.dart";
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:intl/intl.dart';
 
 class ChatScreen extends StatefulWidget {
   final groupData;
@@ -36,7 +40,7 @@ class _ChatScreenState extends State<ChatScreen> {
       if (xFile != null) {
         pickedFile = File(xFile.path);
         pickedFileName = xFile.name.toString();
-        uploadImage();
+        uploadFile("image");
       }
     });
   }
@@ -51,7 +55,7 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  Future uploadImage() async {
+  Future uploadFile(type) async {
     try {
       var sentData = await _firestore
           .collection("groups")
@@ -62,24 +66,8 @@ class _ChatScreenState extends State<ChatScreen> {
         "message": pickedFileName,
         "sendBy": _auth.currentUser!.displayName,
         "time": FieldValue.serverTimestamp(),
-        "type": "image",
+        "type": type == "image" ? "image" : "file",
       });
-      var ref =
-          FirebaseStorage.instance.ref().child("images").child(pickedFileName!);
-
-      var uploadTask = await ref.putFile(pickedFile!);
-
-      String fileUrl = await uploadTask.ref.getDownloadURL();
-
-      await sentData.update({"link": fileUrl});
-    } catch (e) {
-      Fluttertoast.showToast(msg: e.toString());
-    }
-  }
-
-  Future uploadFile(String type) async {
-    try {
-      Fluttertoast.showToast(msg: "Sending...");
       var ref = FirebaseStorage.instance
           .ref()
           .child(type == "image" ? "images" : "files")
@@ -89,17 +77,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
       String fileUrl = await uploadTask.ref.getDownloadURL();
 
-      _firestore
-          .collection("groups")
-          .doc(widget.groupData!["id"])
-          .collection("chats")
-          .add({
-        "link": fileUrl,
-        "message": pickedFileName,
-        "sendBy": _auth.currentUser!.displayName,
-        "time": FieldValue.serverTimestamp(),
-        "type": type,
-      });
+      await sentData.update({"link": fileUrl});
     } catch (e) {
       Fluttertoast.showToast(msg: e.toString());
     }
@@ -213,12 +191,13 @@ class _ChatScreenState extends State<ChatScreen> {
                           .collection("groups")
                           .doc(widget.groupData!["id"])
                           .collection("chats")
-                          .orderBy("time", descending: false)
+                          .orderBy("time", descending: true)
                           .snapshots(),
                       builder: (BuildContext context,
                           AsyncSnapshot<QuerySnapshot> snapshot) {
                         if (snapshot.data != null) {
                           return ListView.builder(
+                            reverse: true,
                             itemCount: snapshot.data!.docs.length,
                             itemBuilder: (context, index) {
                               Map<String, dynamic> map =
@@ -239,7 +218,7 @@ class _ChatScreenState extends State<ChatScreen> {
             Container(
               height: size.height / 10,
               width: size.width,
-              alignment: Alignment.center,
+              alignment: Alignment.bottomCenter,
               child: Container(
                 height: size.height / 12,
                 width: size.width / 1.1,
@@ -295,114 +274,17 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget messages(Size size, Map<String, dynamic> map, BuildContext context) {
     //help us to show the text and the image in perfect alignment
     return map['type'] == "text" //checks if our msg is text or image
-        ? Container(
-            width: size.width,
-            alignment: map['sendby'] == _auth.currentUser!.displayName
-                ? Alignment.centerLeft
-                : Alignment.centerRight,
-            child: Container(
-              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 14),
-              margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(10),
-                      bottomRight: Radius.circular(10),
-                      bottomLeft: Radius.circular(10)),
-                  color: Colors.blue),
-              constraints: BoxConstraints(
-                maxWidth: size.width * 0.7,
-              ),
-              child: SelectableText(
-                map['message'],
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.white,
-                ),
-                toolbarOptions: ToolbarOptions(
-                  copy: true,
-                  selectAll: true,
-                ),
-              ),
-            ),
+        ? MessageTile(
+            size,
+            map,
+            _auth.currentUser!.displayName,
           )
         : map["type"] == "image"
-            ? Container(
-                height: size.width * 0.5,
-                width: size.width,
-                padding: EdgeInsets.symmetric(vertical: 5, horizontal: 5),
-                alignment: map['sendby'] == _auth.currentUser!.displayName
-                    ? Alignment.centerLeft
-                    : Alignment.centerRight,
-                child: InkWell(
-                  onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => ShowImage(
-                        imageUrl: map['link'],
-                      ),
-                    ),
-                  ),
-                  child: Container(
-                    width: size.width * 0.5,
-                    decoration: BoxDecoration(
-                        border: Border.all(color: Colors.blue, width: 5),
-                        borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(10),
-                            bottomRight: Radius.circular(10),
-                            bottomLeft: Radius.circular(10)),
-                        color: Colors.grey[400]),
-                    alignment: Alignment.center,
-                    child: map['link'] != ""
-                        ? Image.network(
-                            map["link"],
-                            fit: BoxFit.fill,
-                            loadingBuilder: (BuildContext context, Widget child,
-                                ImageChunkEvent? loadingProgress) {
-                              if (loadingProgress == null) return child;
-                              return Center(
-                                child: CircularProgressIndicator(
-                                  value: loadingProgress.expectedTotalBytes !=
-                                          null
-                                      ? loadingProgress.cumulativeBytesLoaded /
-                                          loadingProgress.expectedTotalBytes!
-                                      : null,
-                                ),
-                              );
-                            },
-                          )
-                        : Center(
-                            child: CircularProgressIndicator(),
-                          ),
-                  ),
-                ),
-              )
-            : Container(
-                width: size.width,
-                alignment: map['sendby'] == _auth.currentUser!.displayName
-                    ? Alignment.centerLeft
-                    : Alignment.centerRight,
-                child: Text(map['message']),
+            ? ImageMsgTile(size, map, _auth.currentUser!.displayName, context)
+            : FileMsgTile(
+                size: size,
+                map: map,
+                displayName: _auth.currentUser!.displayName,
               );
-  }
-}
-
-class ShowImage extends StatelessWidget {
-  //to show the image fullscreen
-  final String imageUrl;
-
-  const ShowImage({required this.imageUrl, Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final Size size = MediaQuery.of(context).size;
-
-    return Scaffold(
-      body: Container(
-        height: size.height,
-        width: size.width,
-        color: Colors.black,
-        child: Image.network("$imageUrl"),
-      ),
-    );
   }
 }
