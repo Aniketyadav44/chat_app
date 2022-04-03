@@ -47,24 +47,29 @@ class _FileMsgTileState extends State<FileMsgTile> {
       child: Container(
         width: widget.size.width * 0.5,
         decoration: BoxDecoration(
-          border: Border.all(
-              color: widget.map!["sendBy"] == widget.displayName
-                  ? Colors.blue
-                  : Colors.grey,
-              width: 5),
-          borderRadius: BorderRadius.only(
-            topLeft: widget.map!["sendBy"] == widget.displayName
-                ? Radius.circular(20)
-                : Radius.circular(0),
-            bottomRight: Radius.circular(20),
-            bottomLeft: Radius.circular(20),
-            topRight: widget.map!["sendBy"] == widget.displayName
-                ? Radius.circular(0)
-                : Radius.circular(20),
-          ),
-          color: widget.map!["sendBy"] == widget.displayName
-              ? Colors.blue
-              : Colors.grey,
+          border: Border.all(color: Colors.purple, width: 5),
+          borderRadius: BorderRadius.circular(25),
+          gradient: const RadialGradient(
+              center: Alignment.topRight,
+              // near the top right
+              radius: 6,
+              colors: [
+                Colors.purple,
+                Colors.blue,
+              ]),
+          // borderRadius: BorderRadius.only(
+          //   topLeft: widget.map!["sendBy"] == widget.displayName
+          //       ? Radius.circular(20)
+          //       : Radius.circular(0),
+          //   bottomRight: Radius.circular(20),
+          //   bottomLeft: Radius.circular(20),
+          //   topRight: widget.map!["sendBy"] == widget.displayName
+          //       ? Radius.circular(0)
+          //       : Radius.circular(20),
+          // ),
+          // color: widget.map!["sendBy"] == widget.displayName
+          //     ? Colors.blue
+          //     : Colors.grey,
         ),
         alignment: Alignment.center,
         child: widget.map!['link'] != ""
@@ -72,14 +77,15 @@ class _FileMsgTileState extends State<FileMsgTile> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10, horizontal: 10),
                     child: Text(
                       widget.map!["sendBy"],
-                      style: const TextStyle(fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                          color: Colors.amber[900],
+                          fontWeight: FontWeight.bold),
                     ),
                   ),
-                  SizedBox(height: 2),
                   InkWell(
                     onTap: () => openFile(
                         url: widget.map!["link"],
@@ -98,39 +104,42 @@ class _FileMsgTileState extends State<FileMsgTile> {
                             style: const TextStyle(fontSize: 15),
                           ),
                           filePath == null
-                              ? CircleAvatar(
-                                  child: Icon(Icons.download),
-                                  backgroundColor: Colors.white,
+                              ? const CircleAvatar(
+                                  child: Icon(
+                                    Icons.download,
+                                    color: Colors.white,
+                                  ),
+                                  backgroundColor:
+                                      Color.fromARGB(255, 141, 5, 136),
                                 )
                               : Container()
                         ],
                       ),
-                      decoration: BoxDecoration(
-                          color: widget.map!["sendBy"] == widget.displayName
-                              ? Colors.blue[400]
-                              : Colors.grey[400]),
+                      decoration: BoxDecoration(color: Colors.grey[400]),
                     ),
                   ),
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 2, horizontal: 10),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10, horizontal: 10),
                     child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         const Text(
                           "File",
                           style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                          ),
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white),
                         ),
-                        const SizedBox(width: 10),
                         Text(
                           DateFormat('hh:mm a')
                               .format(widget.map!["time"].toDate())
                               .toLowerCase(),
                           style: const TextStyle(
-                              fontSize: 10, fontWeight: FontWeight.bold),
+                              fontSize: 12,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),

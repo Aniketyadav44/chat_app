@@ -131,6 +131,8 @@ class _ChatScreenState extends State<ChatScreen> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         titleSpacing: 0,
+        backgroundColor: Colors.purple[800],
+        elevation: 0,
         title: Container(
           padding: EdgeInsets.only(left: 0),
           child: Row(
@@ -182,7 +184,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   value: 0,
                   child: Container(
                     width: width * 0.5,
-                    child: Text("Group Info"),
+                    child: const Text("Group Info"),
                   ),
                 ),
               ];
@@ -194,7 +196,7 @@ class _ChatScreenState extends State<ChatScreen> {
         ],
       ),
       body: appStorage == null
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
               child: Column(
                 children: [
@@ -235,7 +237,7 @@ class _ChatScreenState extends State<ChatScreen> {
                             },
                           ),
                         )
-                      : Center(child: Text("No Chats Yet.")),
+                      : const Center(child: Text("No Chats Yet.")),
                   Container(
                     height: size.height / 10,
                     width: size.width,
@@ -252,6 +254,7 @@ class _ChatScreenState extends State<ChatScreen> {
                             maxLines: null,
                             controller: _message,
                             autocorrect: true,
+                            cursorColor: Colors.purple,
                             decoration: InputDecoration(
                               suffixIcon: Container(
                                 width: width * 0.3,
@@ -260,18 +263,28 @@ class _ChatScreenState extends State<ChatScreen> {
                                   children: [
                                     IconButton(
                                       onPressed: () => getFile(),
-                                      icon: Icon(Icons.attach_file),
+                                      icon: const Icon(
+                                        Icons.attach_file,
+                                        color: Colors.purple,
+                                      ),
                                     ),
                                     IconButton(
-                                      icon: Icon(Icons.photo),
+                                      icon: const Icon(Icons.photo),
                                       onPressed: () => getImage(),
+                                      color: Colors.purple,
                                     ),
                                   ],
                                 ),
                               ),
+                              fillColor: const Color.fromARGB(255, 119, 5, 181),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: const BorderSide(
+                                    color: Color.fromARGB(255, 35, 6, 194),
+                                    width: 2.0),
+                                borderRadius: BorderRadius.circular(15.0),
+                              ),
                               hintText: "Type A Message",
                               border: OutlineInputBorder(
-                                gapPadding: 50,
                                 borderRadius: BorderRadius.circular(
                                   (10),
                                 ),
@@ -279,9 +292,22 @@ class _ChatScreenState extends State<ChatScreen> {
                             ),
                           ),
                         ),
-                        IconButton(
-                          onPressed: onSendMessage,
-                          icon: Icon(Icons.send),
+                        const SizedBox(
+                          width: 2,
+                        ),
+                        Ink(
+                          decoration: const ShapeDecoration(
+                            color: Color.fromARGB(255, 141, 5, 136),
+                            shape: CircleBorder(),
+                          ),
+                          child: IconButton(
+                            focusColor: Colors.blue,
+                            splashRadius: 30,
+                            splashColor: Colors.blueGrey,
+                            onPressed: onSendMessage,
+                            icon: const Icon(Icons.send),
+                            color: Colors.white,
+                          ),
                         ),
                       ]),
                     ),

@@ -48,24 +48,33 @@ class _ImageMsgTileState extends State<ImageMsgTile> {
         child: Container(
           width: size.width * 0.5,
           decoration: BoxDecoration(
-            border: Border.all(
-                color: widget.map!["sendBy"] == widget.displayName
-                    ? Colors.blue
-                    : Colors.grey,
-                width: 5),
-            borderRadius: BorderRadius.only(
-              topLeft: widget.map!["sendBy"] == widget.displayName
-                  ? const Radius.circular(20)
-                  : const Radius.circular(0),
-              bottomRight: const Radius.circular(20),
-              bottomLeft: const Radius.circular(20),
-              topRight: widget.map!["sendBy"] == widget.displayName
-                  ? const Radius.circular(0)
-                  : const Radius.circular(20),
-            ),
-            color: widget.map!["sendBy"] == widget.displayName
-                ? Colors.blue
-                : Colors.grey,
+            // border: Border.all(
+            //     color: widget.map!["sendBy"] == widget.displayName
+            //         ? Colors.blue
+            //         : Colors.grey,
+            //     width: 5),
+            //   borderRadius: BorderRadius.only(
+            //     topLeft: widget.map!["sendBy"] == widget.displayName
+            //         ? const Radius.circular(20)
+            //         : const Radius.circular(0),
+            //     bottomRight: const Radius.circular(20),
+            //     bottomLeft: const Radius.circular(20),
+            //     topRight: widget.map!["sendBy"] == widget.displayName
+            //         ? const Radius.circular(0)
+            //         : const Radius.circular(20),
+            //   ),
+            //   color: widget.map!["sendBy"] == widget.displayName
+            //       ? Colors.blue
+            //       : Colors.grey,
+            borderRadius: BorderRadius.circular(25),
+            gradient: const RadialGradient(
+                center: Alignment.topRight,
+                // near the top right
+                radius: 6,
+                colors: [
+                  Colors.purple,
+                  Colors.blue,
+                ]),
           ),
           alignment: Alignment.center,
           child: widget.map!['link'] != ""
@@ -74,13 +83,14 @@ class _ImageMsgTileState extends State<ImageMsgTile> {
                   children: [
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          vertical: 5, horizontal: 10),
+                          vertical: 10, horizontal: 10),
                       child: Text(
                         widget.map!["sendBy"],
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            color: Colors.amber[900],
+                            fontWeight: FontWeight.bold),
                       ),
                     ),
-                    SizedBox(height: 2),
                     Container(
                       constraints: BoxConstraints(minHeight: size.width * 0.5),
                       child: checkImageExists(widget.map!["message"]) != null
@@ -111,13 +121,16 @@ class _ImageMsgTileState extends State<ImageMsgTile> {
                     ),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          vertical: 2, horizontal: 10),
+                          vertical: 10, horizontal: 10),
+                      alignment: Alignment.bottomRight,
                       child: Text(
                         DateFormat('hh:mm a')
                             .format(widget.map!["time"].toDate())
                             .toLowerCase(),
                         style: const TextStyle(
-                            fontSize: 10, fontWeight: FontWeight.bold),
+                            fontSize: 12,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold),
                       ),
                       constraints: BoxConstraints(
                         minWidth: size.width * 0.2,
@@ -127,7 +140,7 @@ class _ImageMsgTileState extends State<ImageMsgTile> {
                 )
               : Container(
                   height: size.width * 0.5,
-                  child: Center(
+                  child: const Center(
                     child: CircularProgressIndicator(),
                   ),
                   color: widget.map!["sendBy"] == widget.displayName
@@ -135,27 +148,6 @@ class _ImageMsgTileState extends State<ImageMsgTile> {
                       : Colors.grey[400],
                 ),
         ),
-      ),
-    );
-  }
-}
-
-class ShowImage extends StatelessWidget {
-  //to show the image fullscreen
-  final String imageUrl;
-
-  const ShowImage({required this.imageUrl, Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final Size size = MediaQuery.of(context).size;
-
-    return Scaffold(
-      body: Container(
-        height: size.height,
-        width: size.width,
-        color: Colors.black,
-        child: Image.network("$imageUrl"),
       ),
     );
   }
