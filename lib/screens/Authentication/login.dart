@@ -21,14 +21,14 @@ class _LoginScreenState extends State<LoginScreen> {
     final size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
-        title: Text("Login"),
+        title: const Text("Login"),
       ),
       body: isLoading
           ? Center(
               child: Container(
                 height: size.height / 20,
                 width: size.height / 20,
-                child: CircularProgressIndicator(),
+                child: const CircularProgressIndicator(),
               ),
             )
           : SingleChildScrollView(
@@ -39,7 +39,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   inputField(size, "Email", Icons.account_box, _email),
                   Padding(
-                    padding: EdgeInsets.symmetric(vertical: 18),
+                    padding: const EdgeInsets.symmetric(vertical: 18),
                     child: inputField(size, "Password", Icons.lock, _password),
                   ),
                   SizedBox(
@@ -49,7 +49,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   TextButton(
                       onPressed: () => Navigator.push(context,
                           MaterialPageRoute(builder: (_) => CreateScreen())),
-                      child: Text("Create Account"))
+                      child: const Text("Create Account"))
                 ],
               ),
             ),
@@ -92,7 +92,7 @@ class _LoginScreenState extends State<LoginScreen> {
           borderRadius: BorderRadius.circular(10),
           color: Colors.blue,
         ),
-        child: Text(
+        child: const Text(
           "Login",
           style: TextStyle(color: Colors.white, fontSize: 22),
         ),
@@ -113,7 +113,7 @@ class _LoginScreenState extends State<LoginScreen> {
           decoration: InputDecoration(
             prefixIcon: Icon(icon),
             hintText: hintText,
-            hintStyle: TextStyle(color: Colors.grey),
+            hintStyle: const TextStyle(color: Colors.grey),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
             ),

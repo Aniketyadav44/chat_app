@@ -44,6 +44,10 @@ dependencies:
   firebase_core: ^1.13.1
   file_picker: ^4.5.1
   path: ^1.8.0
+  dio: ^4.0.6
+  path_provider: ^2.0.9
+  open_file: ^3.2.1
+  permission_handler: ^9.2.0
 
 dev_dependencies:
   flutter_test:

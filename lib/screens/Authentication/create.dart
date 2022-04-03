@@ -22,14 +22,14 @@ class _CreateScreenState extends State<CreateScreen> {
     final size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
-        title: Text("Create Account"),
+        title: const Text("Create Account"),
       ),
       body: isLoading
           ? Center(
               child: Container(
                 height: size.height / 20,
                 width: size.height / 20,
-                child: CircularProgressIndicator(),
+                child: const CircularProgressIndicator(),
               ),
             )
           : SingleChildScrollView(
@@ -40,11 +40,11 @@ class _CreateScreenState extends State<CreateScreen> {
                   ),
                   inputField(size, "Name", Icons.account_box, _name),
                   Padding(
-                    padding: EdgeInsets.symmetric(vertical: 18),
+                    padding: const EdgeInsets.symmetric(vertical: 18),
                     child: inputField(size, "Email", Icons.account_box, _email),
                   ),
                   Padding(
-                    padding: EdgeInsets.symmetric(vertical: 18),
+                    padding: const EdgeInsets.symmetric(vertical: 18),
                     child: inputField(size, "Password", Icons.lock, _password),
                   ),
                   SizedBox(
@@ -54,7 +54,7 @@ class _CreateScreenState extends State<CreateScreen> {
                   TextButton(
                       onPressed: () => Navigator.push(context,
                           MaterialPageRoute(builder: (_) => LoginScreen())),
-                      child: Text("Login"))
+                      child: const Text("Login"))
                 ],
               ),
             ),
@@ -99,7 +99,7 @@ class _CreateScreenState extends State<CreateScreen> {
           borderRadius: BorderRadius.circular(10),
           color: Colors.blue,
         ),
-        child: Text(
+        child: const Text(
           "Create",
           style: TextStyle(color: Colors.white, fontSize: 22),
         ),
@@ -120,7 +120,7 @@ class _CreateScreenState extends State<CreateScreen> {
           decoration: InputDecoration(
             prefixIcon: Icon(icon),
             hintText: hintText,
-            hintStyle: TextStyle(color: Colors.grey),
+            hintStyle: const TextStyle(color: Colors.grey),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
             ),

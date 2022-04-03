@@ -10,6 +10,7 @@ import "package:image_picker/image_picker.dart";
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
 
 class ChatScreen extends StatefulWidget {
   final groupData;
@@ -31,6 +32,8 @@ class _ChatScreenState extends State<ChatScreen> {
   File? pickedFile;
 
   String? pickedFileName;
+
+  Directory? appStorage;
 
   Future getImage() async {
     //to get the image from galary
@@ -104,6 +107,21 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+  Future getStoragePath() async {
+    final s = await getExternalStorageDirectory();
+    print(s!.path);
+    setState(() {
+      appStorage = s;
+    });
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getStoragePath();
+  }
+
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
@@ -175,103 +193,107 @@ class _ChatScreenState extends State<ChatScreen> {
           )
         ],
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            _firestore
-                        .collection("groups")
-                        .doc(widget.groupData!["id"])
-                        .collection("chats") !=
-                    null
-                ? Container(
-                    height: size.height / 1.27,
-                    width: size.width,
-                    child: StreamBuilder<QuerySnapshot>(
-                      stream: _firestore
-                          .collection("groups")
-                          .doc(widget.groupData!["id"])
-                          .collection("chats")
-                          .orderBy("time", descending: true)
-                          .snapshots(),
-                      builder: (BuildContext context,
-                          AsyncSnapshot<QuerySnapshot> snapshot) {
-                        if (snapshot.data != null) {
-                          return ListView.builder(
-                            reverse: true,
-                            itemCount: snapshot.data!.docs.length,
-                            itemBuilder: (context, index) {
-                              Map<String, dynamic> map =
-                                  // messageData =
-                                  snapshot.data!.docs[index].data()
-                                      as Map<String, dynamic>;
+      body: appStorage == null
+          ? Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              child: Column(
+                children: [
+                  _firestore
+                              .collection("groups")
+                              .doc(widget.groupData!["id"])
+                              .collection("chats") !=
+                          null
+                      ? Container(
+                          height: size.height / 1.27,
+                          width: size.width,
+                          child: StreamBuilder<QuerySnapshot>(
+                            stream: _firestore
+                                .collection("groups")
+                                .doc(widget.groupData!["id"])
+                                .collection("chats")
+                                .orderBy("time", descending: true)
+                                .snapshots(),
+                            builder: (BuildContext context,
+                                AsyncSnapshot<QuerySnapshot> snapshot) {
+                              if (snapshot.data != null) {
+                                return ListView.builder(
+                                  reverse: true,
+                                  itemCount: snapshot.data!.docs.length,
+                                  itemBuilder: (context, index) {
+                                    Map<String, dynamic> map =
+                                        // messageData =
+                                        snapshot.data!.docs[index].data()
+                                            as Map<String, dynamic>;
 
-                              return messages(size, map, context);
+                                    return messages(
+                                        size, map, context, appStorage);
+                                  },
+                                );
+                              } else {
+                                return Container();
+                              }
                             },
-                          );
-                        } else {
-                          return Container();
-                        }
-                      },
-                    ),
-                  )
-                : Center(child: Text("No Chats Yet.")),
-            Container(
-              height: size.height / 10,
-              width: size.width,
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                height: size.height / 12,
-                width: size.width / 1.1,
-                child: Row(children: [
+                          ),
+                        )
+                      : Center(child: Text("No Chats Yet.")),
                   Container(
-                    height: size.height / 12,
-                    width: size.width / 1.3,
-                    child: TextField(
-                      keyboardType: TextInputType.multiline,
-                      maxLines: null,
-                      controller: _message,
-                      autocorrect: true,
-                      decoration: InputDecoration(
-                        suffixIcon: Container(
-                          width: width * 0.3,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              IconButton(
-                                onPressed: () => getFile(),
-                                icon: Icon(Icons.attach_file),
+                    height: size.height / 10,
+                    width: size.width,
+                    alignment: Alignment.bottomCenter,
+                    child: Container(
+                      height: size.height / 12,
+                      width: size.width / 1.1,
+                      child: Row(children: [
+                        Container(
+                          height: size.height / 12,
+                          width: size.width / 1.3,
+                          child: TextField(
+                            keyboardType: TextInputType.multiline,
+                            maxLines: null,
+                            controller: _message,
+                            autocorrect: true,
+                            decoration: InputDecoration(
+                              suffixIcon: Container(
+                                width: width * 0.3,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    IconButton(
+                                      onPressed: () => getFile(),
+                                      icon: Icon(Icons.attach_file),
+                                    ),
+                                    IconButton(
+                                      icon: Icon(Icons.photo),
+                                      onPressed: () => getImage(),
+                                    ),
+                                  ],
+                                ),
                               ),
-                              IconButton(
-                                icon: Icon(Icons.photo),
-                                onPressed: () => getImage(),
+                              hintText: "Type A Message",
+                              border: OutlineInputBorder(
+                                gapPadding: 50,
+                                borderRadius: BorderRadius.circular(
+                                  (10),
+                                ),
                               ),
-                            ],
+                            ),
                           ),
                         ),
-                        hintText: "Type A Message",
-                        border: OutlineInputBorder(
-                          gapPadding: 50,
-                          borderRadius: BorderRadius.circular(
-                            (10),
-                          ),
+                        IconButton(
+                          onPressed: onSendMessage,
+                          icon: Icon(Icons.send),
                         ),
-                      ),
+                      ]),
                     ),
                   ),
-                  IconButton(
-                    onPressed: onSendMessage,
-                    icon: Icon(Icons.send),
-                  ),
-                ]),
+                ],
               ),
             ),
-          ],
-        ),
-      ),
     );
   }
 
-  Widget messages(Size size, Map<String, dynamic> map, BuildContext context) {
+  Widget messages(Size size, Map<String, dynamic> map, BuildContext context,
+      Directory? appStorage) {
     //help us to show the text and the image in perfect alignment
     return map['type'] == "text" //checks if our msg is text or image
         ? MessageTile(
@@ -280,11 +302,15 @@ class _ChatScreenState extends State<ChatScreen> {
             _auth.currentUser!.displayName,
           )
         : map["type"] == "image"
-            ? ImageMsgTile(size, map, _auth.currentUser!.displayName, context)
+            ? ImageMsgTile(
+                map: map,
+                displayName: _auth.currentUser!.displayName,
+                appStorage: appStorage)
             : FileMsgTile(
                 size: size,
                 map: map,
                 displayName: _auth.currentUser!.displayName,
+                appStorage: appStorage,
               );
   }
 }
