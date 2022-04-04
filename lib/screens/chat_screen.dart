@@ -1,9 +1,13 @@
+import 'dart:async';
+
+import 'package:chat_new/screens/group_info.dart';
 import 'package:chat_new/widgets/file_msg_tile.dart';
 import 'package:chat_new/widgets/image_msg_tile.dart';
 import 'package:chat_new/widgets/message_tile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import "package:image_picker/image_picker.dart";
@@ -34,6 +38,65 @@ class _ChatScreenState extends State<ChatScreen> {
   String? pickedFileName;
 
   Directory? appStorage;
+
+  ScrollController _scrollController = ScrollController();
+
+  final StreamController<List<DocumentSnapshot>> _chatController =
+      StreamController<List<DocumentSnapshot>>.broadcast();
+
+  List<List<DocumentSnapshot>> _allPagedResults = [<DocumentSnapshot>[]];
+
+  static const int chatLimit = 10;
+  DocumentSnapshot? _lastDocument;
+  bool _hasMoreData = true;
+
+  Stream<List<DocumentSnapshot>> listenToChatsRealTime() {
+    _getChats();
+    return _chatController.stream;
+  }
+
+  void _getChats() {
+    var pageChatQuery = _firestore
+        .collection("groups")
+        .doc(widget.groupData!["id"])
+        .collection("chats")
+        .orderBy("time", descending: true)
+        .limit(chatLimit);
+
+    if (_lastDocument != null) {
+      pageChatQuery = pageChatQuery.startAfterDocument(_lastDocument!);
+    }
+
+    if (!_hasMoreData) return;
+
+    var currentRequestIndex = _allPagedResults.length;
+    pageChatQuery.snapshots().listen(
+      (snapshot) {
+        if (snapshot.docs.isNotEmpty) {
+          var generalChats = snapshot.docs.toList();
+          var pageExists = currentRequestIndex < _allPagedResults.length;
+
+          if (pageExists) {
+            _allPagedResults[currentRequestIndex] = generalChats;
+          } else {
+            _allPagedResults.add(generalChats);
+          }
+
+          var allChats = _allPagedResults.fold<List<DocumentSnapshot>>(
+              <DocumentSnapshot>[],
+              (initialValue, pageItems) => initialValue..addAll(pageItems));
+
+          _chatController.add(allChats);
+
+          if (currentRequestIndex == _allPagedResults.length - 1) {
+            _lastDocument = snapshot.docs.last;
+          }
+
+          _hasMoreData = generalChats.length == chatLimit;
+        }
+      },
+    );
+  }
 
   Future getImage() async {
     //to get the image from galary
@@ -120,6 +183,13 @@ class _ChatScreenState extends State<ChatScreen> {
     // TODO: implement initState
     super.initState();
     getStoragePath();
+    _scrollController.addListener(() {
+      if (_scrollController.offset >=
+              (_scrollController.position.maxScrollExtent) &&
+          !_scrollController.position.outOfRange) {
+        _getChats();
+      }
+    });
   }
 
   @override
@@ -190,7 +260,16 @@ class _ChatScreenState extends State<ChatScreen> {
               ];
             },
             onSelected: (value) {
-              if (value == 0) {}
+              if (value == 0) {
+                print(widget.groupData);
+                Navigator.push(
+                  context,
+                  CupertinoPageRoute(
+                    builder: (_) =>
+                        GroupInfoScreen(groupData: widget.groupData!),
+                  ),
+                );
+              }
             },
           )
         ],
@@ -200,44 +279,46 @@ class _ChatScreenState extends State<ChatScreen> {
           : SingleChildScrollView(
               child: Column(
                 children: [
-                  _firestore
-                              .collection("groups")
-                              .doc(widget.groupData!["id"])
-                              .collection("chats") !=
-                          null
-                      ? Container(
-                          height: size.height / 1.27,
-                          width: size.width,
-                          child: StreamBuilder<QuerySnapshot>(
-                            stream: _firestore
-                                .collection("groups")
-                                .doc(widget.groupData!["id"])
-                                .collection("chats")
-                                .orderBy("time", descending: true)
-                                .snapshots(),
-                            builder: (BuildContext context,
-                                AsyncSnapshot<QuerySnapshot> snapshot) {
-                              if (snapshot.data != null) {
-                                return ListView.builder(
-                                  reverse: true,
-                                  itemCount: snapshot.data!.docs.length,
-                                  itemBuilder: (context, index) {
-                                    Map<String, dynamic> map =
-                                        // messageData =
-                                        snapshot.data!.docs[index].data()
-                                            as Map<String, dynamic>;
-
-                                    return messages(
-                                        size, map, context, appStorage);
-                                  },
+                  //Chats container
+                  Container(
+                    height: size.height / 1.27,
+                    width: size.width,
+                    child: StreamBuilder<List<DocumentSnapshot>>(
+                      stream: listenToChatsRealTime(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                                ConnectionState.waiting ||
+                            snapshot.connectionState == ConnectionState.none) {
+                          return snapshot.hasData
+                              ? const Center(
+                                  child: CircularProgressIndicator(),
+                                )
+                              : const Center(
+                                  child: Text("Start a Conversation."),
                                 );
-                              } else {
-                                return Container();
-                              }
-                            },
-                          ),
-                        )
-                      : const Center(child: Text("No Chats Yet.")),
+                        } else {
+                          if (snapshot.data != null) {
+                            return ListView.builder(
+                              reverse: true,
+                              controller: _scrollController,
+                              itemCount: snapshot.data!.length,
+                              itemBuilder: (context, index) {
+                                Map<String, dynamic> map =
+                                    // messageData =
+                                    snapshot.data![index].data()
+                                        as Map<String, dynamic>;
+
+                                return messages(size, map, context, appStorage);
+                              },
+                            );
+                          } else {
+                            return Container();
+                          }
+                        }
+                      },
+                    ),
+                  ),
+                  //Message Text Field container
                   Container(
                     height: size.height / 10,
                     width: size.width,

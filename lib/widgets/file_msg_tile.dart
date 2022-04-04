@@ -47,7 +47,6 @@ class _FileMsgTileState extends State<FileMsgTile> {
       child: Container(
         width: widget.size.width * 0.5,
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.purple, width: 5),
           borderRadius: BorderRadius.circular(25),
           gradient: const RadialGradient(
               center: Alignment.topRight,
@@ -115,7 +114,8 @@ class _FileMsgTileState extends State<FileMsgTile> {
                               : Container()
                         ],
                       ),
-                      decoration: BoxDecoration(color: Colors.grey[400]),
+                      decoration: BoxDecoration(
+                          color: Colors.grey.shade200.withOpacity(0.5)),
                     ),
                   ),
                   Container(
