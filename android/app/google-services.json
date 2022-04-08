@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "441642983732",
+    "project_id": "cloudyml-chatapp",
+    "storage_bucket": "cloudyml-chatapp.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:441642983732:android:9fbd0cf24c3e714cc2c561",
+        "android_client_info": {
+          "package_name": "com.cloudyml.cloudymlchatapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "441642983732-76qb71euraqca08krl5jvlsaun636g2p.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCvdZYsmzHigl7h-yGA-wh14rPkdA9Fnqs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "441642983732-76qb71euraqca08krl5jvlsaun636g2p.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
