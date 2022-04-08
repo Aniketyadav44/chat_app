@@ -15,6 +15,7 @@ import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class ChatScreen extends StatefulWidget {
   final groupData;
@@ -171,7 +172,10 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future getStoragePath() async {
-    final s = await getExternalStorageDirectory();
+    var s;
+    if (await Permission.storage.request().isGranted) {
+      s = await getExternalStorageDirectory();
+    }
     print(s!.path);
     setState(() {
       appStorage = s;

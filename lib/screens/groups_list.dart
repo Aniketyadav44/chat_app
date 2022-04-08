@@ -128,6 +128,7 @@ class _GroupsListState extends State<GroupsList> {
                       },
                       child: GroupTile(
                         groupData: groupsList![index],
+                        userData: userData,
                       ),
                     );
                   }),

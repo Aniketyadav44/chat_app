@@ -40,7 +40,7 @@ class _FileMsgTileState extends State<FileMsgTile> {
     checkFileExists(widget.map!["message"]);
     return Container(
       width: widget.size.width,
-      padding: EdgeInsets.symmetric(vertical: 5, horizontal: 5),
+      padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
       alignment: widget.map!['sendBy'] == widget.displayName
           ? Alignment.centerRight
           : Alignment.centerLeft,
@@ -56,40 +56,26 @@ class _FileMsgTileState extends State<FileMsgTile> {
                 Colors.purple,
                 Colors.blue,
               ]),
-          // borderRadius: BorderRadius.only(
-          //   topLeft: widget.map!["sendBy"] == widget.displayName
-          //       ? Radius.circular(20)
-          //       : Radius.circular(0),
-          //   bottomRight: Radius.circular(20),
-          //   bottomLeft: Radius.circular(20),
-          //   topRight: widget.map!["sendBy"] == widget.displayName
-          //       ? Radius.circular(0)
-          //       : Radius.circular(20),
-          // ),
-          // color: widget.map!["sendBy"] == widget.displayName
-          //     ? Colors.blue
-          //     : Colors.grey,
         ),
         alignment: Alignment.center,
         child: widget.map!['link'] != ""
-            ? Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 10, horizontal: 10),
-                    child: Text(
-                      widget.map!["sendBy"],
-                      style: TextStyle(
-                          color: Colors.amber[900],
-                          fontWeight: FontWeight.bold),
+            ? InkWell(
+                onTap: () => openFile(
+                    url: widget.map!["link"], fileName: widget.map!["message"]),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 10, horizontal: 10),
+                      child: Text(
+                        widget.map!["sendBy"],
+                        style: TextStyle(
+                            color: Colors.amber[900],
+                            fontWeight: FontWeight.bold),
+                      ),
                     ),
-                  ),
-                  InkWell(
-                    onTap: () => openFile(
-                        url: widget.map!["link"],
-                        fileName: widget.map!["message"]),
-                    child: Container(
+                    Container(
                       constraints:
                           BoxConstraints(minWidth: widget.size.width * 0.5),
                       padding: const EdgeInsets.only(left: 10, right: 10),
@@ -102,61 +88,58 @@ class _FileMsgTileState extends State<FileMsgTile> {
                             widget.map!["message"],
                             style: const TextStyle(fontSize: 15),
                           ),
-                          filePath == null
-                              ? const CircleAvatar(
-                                  child: Icon(
-                                    Icons.download,
-                                    color: Colors.white,
-                                  ),
-                                  backgroundColor:
-                                      Color.fromARGB(255, 141, 5, 136),
-                                )
-                              : Container()
+                          // filePath == null
+                          //     ? const CircleAvatar(
+                          //         child: Icon(
+                          //           Icons.download,
+                          //           color: Colors.white,
+                          //         ),
+                          //         backgroundColor:
+                          //             Color.fromARGB(255, 141, 5, 136),
+                          //       )
+                          //     : Container()
                         ],
                       ),
                       decoration: BoxDecoration(
                           color: Colors.grey.shade200.withOpacity(0.5)),
                     ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 10, horizontal: 10),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        const Text(
-                          "File",
-                          style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white),
-                        ),
-                        Text(
-                          DateFormat('hh:mm a')
-                              .format(widget.map!["time"].toDate())
-                              .toLowerCase(),
-                          style: const TextStyle(
-                              fontSize: 12,
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-                    constraints: BoxConstraints(
-                      minWidth: widget.size.width * 0.2,
-                    ),
-                  )
-                ],
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 10, horizontal: 10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          const Text(
+                            "File",
+                            style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white),
+                          ),
+                          Text(
+                            DateFormat('hh:mm a')
+                                .format(widget.map!["time"].toDate())
+                                .toLowerCase(),
+                            style: const TextStyle(
+                                fontSize: 12,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                      constraints: BoxConstraints(
+                        minWidth: widget.size.width * 0.2,
+                      ),
+                    )
+                  ],
+                ),
               )
             : Container(
-                height: widget.size.width * 0.5,
+                height: widget.size.height * 0.15,
                 child: Center(
                   child: CircularProgressIndicator(),
                 ),
-                color: widget.map!["sendBy"] == widget.displayName
-                    ? Colors.blue[400]
-                    : Colors.grey[400],
               ),
       ),
     );

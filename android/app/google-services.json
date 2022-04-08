@@ -1,62 +1,33 @@
 {
   "project_info": {
-    "project_number": "582731191768",
-    "project_id": "chat-516d4",
-    "storage_bucket": "chat-516d4.appspot.com"
+    "project_number": "441642983732",
+    "project_id": "cloudyml-chatapp",
+    "storage_bucket": "cloudyml-chatapp.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:582731191768:android:f5b14f3b7e2b154a604ead",
+        "mobilesdk_app_id": "1:441642983732:android:9fbd0cf24c3e714cc2c561",
         "android_client_info": {
-          "package_name": "com.example.chat"
+          "package_name": "com.cloudyml.cloudymlchatapp"
         }
       },
       "oauth_client": [
         {
-          "client_id": "582731191768-cul2k6v3lqmf26vs3l6m2v4i57qlv9is.apps.googleusercontent.com",
+          "client_id": "441642983732-76qb71euraqca08krl5jvlsaun636g2p.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAky9SWuSMKD0vA26yGNxEVs5eDvNO3v2s"
+          "current_key": "AIzaSyCvdZYsmzHigl7h-yGA-wh14rPkdA9Fnqs"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "582731191768-cul2k6v3lqmf26vs3l6m2v4i57qlv9is.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:582731191768:android:86282381e8e08db1604ead",
-        "android_client_info": {
-          "package_name": "com.example.chat_new"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "582731191768-cul2k6v3lqmf26vs3l6m2v4i57qlv9is.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyAky9SWuSMKD0vA26yGNxEVs5eDvNO3v2s"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "582731191768-cul2k6v3lqmf26vs3l6m2v4i57qlv9is.apps.googleusercontent.com",
+              "client_id": "441642983732-76qb71euraqca08krl5jvlsaun636g2p.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

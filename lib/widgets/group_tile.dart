@@ -4,8 +4,9 @@ import "package:intl/intl.dart";
 
 class GroupTile extends StatelessWidget {
   Map<String, dynamic>? groupData;
+  Map? userData;
 
-  GroupTile({this.groupData});
+  GroupTile({this.groupData, this.userData});
 
   String getDate(Timestamp time) {
     var date = new DateTime.fromMicrosecondsSinceEpoch(time as int);
@@ -32,6 +33,9 @@ class GroupTile extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  userData!["role"] == "mentor"
+                      ? Text("Student: ${groupData!["data"]["student_name"]}")
+                      : Container(),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [

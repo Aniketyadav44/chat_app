@@ -48,24 +48,6 @@ class _ImageMsgTileState extends State<ImageMsgTile> {
         child: Container(
           width: size.width * 0.5,
           decoration: BoxDecoration(
-            // border: Border.all(
-            //     color: widget.map!["sendBy"] == widget.displayName
-            //         ? Colors.blue
-            //         : Colors.grey,
-            //     width: 5),
-            //   borderRadius: BorderRadius.only(
-            //     topLeft: widget.map!["sendBy"] == widget.displayName
-            //         ? const Radius.circular(20)
-            //         : const Radius.circular(0),
-            //     bottomRight: const Radius.circular(20),
-            //     bottomLeft: const Radius.circular(20),
-            //     topRight: widget.map!["sendBy"] == widget.displayName
-            //         ? const Radius.circular(0)
-            //         : const Radius.circular(20),
-            //   ),
-            //   color: widget.map!["sendBy"] == widget.displayName
-            //       ? Colors.blue
-            //       : Colors.grey,
             borderRadius: BorderRadius.circular(25),
             gradient: const RadialGradient(
                 center: Alignment.topRight,
@@ -143,9 +125,6 @@ class _ImageMsgTileState extends State<ImageMsgTile> {
                   child: const Center(
                     child: CircularProgressIndicator(),
                   ),
-                  color: widget.map!["sendBy"] == widget.displayName
-                      ? Colors.blue[400]
-                      : Colors.grey[400],
                 ),
         ),
       ),

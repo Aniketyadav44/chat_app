@@ -26,7 +26,7 @@ class _CourseScreenState extends State<CourseScreen> {
     setState(() {
       isLoading = true;
     });
-    await _firestore.collection("courses").get().then((value) {
+    await _firestore.collection("Courses").get().then((value) {
       final courses = value.docs
           .map((doc) => {
                 "id": doc.id,
