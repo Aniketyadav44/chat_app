@@ -1,3 +1,4 @@
+import 'package:chat_new/loading.dart';
 import 'package:chat_new/screens/chat_screen.dart';
 import 'package:chat_new/widgets/group_tile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -108,9 +109,10 @@ class _GroupsListState extends State<GroupsList> {
       body: isLoading
           ? Center(child: CircularProgressIndicator())
           : groupsList == null || groupsList!.isEmpty
-              ? Center(
-                  child: Text("No Groups Found!"),
-                )
+              ? loading()
+              // Center(
+              //     child: Text("No Groups Found!"),
+              //   )
               : ListView.builder(
                   itemCount: groupsList!.length,
                   itemBuilder: (context, index) {

@@ -2,21 +2,61 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import "package:intl/intl.dart";
 
-class GroupTile extends StatelessWidget {
+class GroupTile extends StatefulWidget {
   Map<String, dynamic>? groupData;
   Map? userData;
 
   GroupTile({this.groupData, this.userData});
 
+  @override
+  State<GroupTile> createState() => _GroupTileState();
+}
+
+class _GroupTileState extends State<GroupTile> {
   String getDate(Timestamp time) {
     var date = new DateTime.fromMicrosecondsSinceEpoch(time as int);
     return date.toString();
+  }
+
+  List item = [];
+  int index=1;
+
+  void getdata() async {
+    var vari = await FirebaseFirestore.instance
+        .collection('groups')
+        .doc(widget.groupData!['id'])
+        .collection('chats')
+        .orderBy('time', descending: true)
+        .limit(1)
+        .get()
+        .then((value) {
+      final chat = value.docs
+          .map((doc) => {
+                "id": doc.id,
+                "data": doc.data(),
+              })
+          .toList();
+
+      setState(() {
+        // message = item.['message'];
+        item = chat;
+        print('the data is $item');
+        print(item.indexOf('message'));
+        // message=item.['data'].['message'];
+      });
+    });
+  }
+
+  void initState() {
+    getdata();
+    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
+
     return Card(
       elevation: 2,
       child: Container(
@@ -25,55 +65,35 @@ class GroupTile extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 22,
-              backgroundImage: NetworkImage(groupData!["data"]["icon"]),
+              backgroundImage: NetworkImage(widget.groupData!["data"]["icon"]),
             ),
             Container(
               padding: const EdgeInsets.all(10),
               width: width * 0.75,
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  userData!["role"] == "mentor"
-                      ? Text("Student: ${groupData!["data"]["student_name"]}")
-                      : Container(),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        width: width * 0.55,
-                        child: Text(
-                          groupData!["data"]["name"],
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold),
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    widget.userData!["role"] == "mentor"
+                        ? Text(
+                            "Student: ${widget.groupData!["data"]["student_name"]}")
+                        : Container(),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          width: width * 0.55,
+                          child: Text(
+                            widget.groupData!["data"]["name"],
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
                         ),
-                      ),
-                      Text(
-                        (groupData!["data"]["recent_message"] != null
-                            ? DateFormat('hh:mm a')
-                                .format((groupData!["data"]["recent_message"]
-                                        ["time"])
-                                    .toDate())
-                                .toLowerCase()
-                            : ""),
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 5),
-                  Text(
-                    groupData!["data"]["recent_message"] != null
-                        ? "${groupData!["data"]["recent_message"]["sentBy"]}: ${groupData!["data"]["recent_message"]["message"]}"
-                        : "",
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 15, color: Colors.grey),
-                  ),
-                ],
-              ),
+                      ],
+                    ),
+                    const SizedBox(height: 5),
+                    Text(item.isEmpty ?" ": item[0]['data']['message'])
+                  ]),
             ),
           ],
         ),
