@@ -49,6 +49,9 @@ dependencies:
   open_file: ^3.2.1
   permission_handler: ^9.2.0
   google_fonts: ^2.3.1
+  record: ^3.0.0
+  flutter_vibrate: ^1.1.0
+  just_audio: ^0.9.11
 
 dev_dependencies:
   flutter_test:
@@ -68,9 +71,9 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
+  assets:
+    - assets/dustbin.json
+    - assets/dustbin_grey.json
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

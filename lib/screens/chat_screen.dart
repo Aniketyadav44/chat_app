@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:chat_new/screens/group_info.dart';
+import 'package:chat_new/widgets/audio_msg_tile.dart';
+import 'package:chat_new/widgets/bottom_sheet.dart';
 import 'package:chat_new/widgets/file_msg_tile.dart';
 import 'package:chat_new/widgets/image_msg_tile.dart';
 import 'package:chat_new/widgets/message_tile.dart';
@@ -13,9 +15,10 @@ import 'package:fluttertoast/fluttertoast.dart';
 import "package:image_picker/image_picker.dart";
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:record/record.dart';
+import '../widgets/bottom_sheet.dart';
 
 class ChatScreen extends StatefulWidget {
   final groupData;
@@ -28,6 +31,7 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+//....................VARIABLES.................................
   TextEditingController _message = TextEditingController();
 
   FirebaseAuth _auth = FirebaseAuth.instance;
@@ -56,6 +60,14 @@ class _ChatScreenState extends State<ChatScreen> {
     return _chatController.stream;
   }
 
+  bool textFocusCheck = false;
+
+  late Record record;
+  bool isRecording = false;
+
+//...............FUNCTIONS.........................
+
+  //getting chats with pagination logic
   void _getChats() {
     var pageChatQuery = _firestore
         .collection("groups")
@@ -99,6 +111,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
+  //image picker from camera logic
   Future getImage() async {
     //to get the image from galary
     ImagePicker _picker = ImagePicker();
@@ -112,6 +125,7 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
+  //file picker logic
   Future getFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles();
     if (result != null) {
@@ -122,6 +136,7 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+  //storing file/image to firestore database
   Future uploadFile(type) async {
     try {
       var sentData = await _firestore
@@ -133,11 +148,19 @@ class _ChatScreenState extends State<ChatScreen> {
         "message": pickedFileName,
         "sendBy": _auth.currentUser!.displayName,
         "time": FieldValue.serverTimestamp(),
-        "type": type == "image" ? "image" : "file",
+        "type": type == "image"
+            ? "image"
+            : type == "audio"
+                ? "audio"
+                : "file",
       });
       var ref = FirebaseStorage.instance
           .ref()
-          .child(type == "image" ? "images" : "files")
+          .child(type == "image"
+              ? "images"
+              : type == "audio"
+                  ? "aduios"
+                  : "files")
           .child(pickedFileName!);
 
       var uploadTask = await ref.putFile(pickedFile!);
@@ -150,7 +173,7 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  // Future uploadImage() async {
+  //storing message to firestore database
   void onSendMessage() async {
     //to send the text to server
     if (_message.text.isNotEmpty) {
@@ -168,15 +191,82 @@ class _ChatScreenState extends State<ChatScreen> {
           .add(message);
 
       _message.clear();
+      setState(() {
+        textFocusCheck = false;
+      });
     }
   }
 
+  void startRecording() async {
+    if (await Record().hasPermission()) {
+      record = Record();
+      isRecording = true;
+      await record.start(
+        path: appStorage!.path.toString() +
+            "/audio_${DateTime.now().millisecondsSinceEpoch}.m4a",
+        encoder: AudioEncoder.AAC,
+        bitRate: 128000,
+        samplingRate: 44100,
+      );
+    }
+  }
+
+  //stop recording and send audio message to firestore database
+  void stopRecording() async {
+    if (isRecording) {
+      var filePath = await Record().stop();
+      print("The audio file path is $filePath");
+      pickedFile = File(filePath!);
+      pickedFileName = filePath.split("/").last;
+      isRecording = false;
+      uploadFile("audio");
+    }
+  }
+
+  //stop recording and delete recorde file
+  void cancelRecording() async {
+    if (isRecording) {
+      var filePath = await Record().stop();
+      var recordedFile = File(filePath.toString());
+      if (await recordedFile.exists()) {
+        await recordedFile.delete();
+      }
+      isRecording = false;
+    }
+  }
+
+  //on record show bottom modal and send audio message
+  void onSendAudioMessage() async {
+    final size = MediaQuery.of(context).size;
+    startRecording();
+    showModalBottomSheet(
+        isDismissible: false,
+        enableDrag: false,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(50),
+          ),
+        ),
+        context: context,
+        builder: (context) {
+          return WillPopScope(
+            onWillPop: () async => false,
+            child: StatefulBottomSheet(
+              size: size,
+              startRecording: startRecording,
+              stopRecording: stopRecording,
+              cancelRecording: cancelRecording,
+            ),
+          );
+        });
+  }
+
+  //getting path to app's internal storage
   Future getStoragePath() async {
     var s;
     if (await Permission.storage.request().isGranted) {
       s = await getExternalStorageDirectory();
     }
-    print(s!.path);
     setState(() {
       appStorage = s;
     });
@@ -194,6 +284,12 @@ class _ChatScreenState extends State<ChatScreen> {
         _getChats();
       }
     });
+  }
+
+  @override
+  void dispose() {
+    record.dispose();
+    super.dispose();
   }
 
   @override
@@ -325,7 +421,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   //Message Text Field container
                   Container(
                     height: size.height / 10,
-                    width: size.width,
+                    width: size.width * 1.2,
                     alignment: Alignment.bottomCenter,
                     child: Container(
                       height: size.height / 12,
@@ -335,6 +431,15 @@ class _ChatScreenState extends State<ChatScreen> {
                           height: size.height / 12,
                           width: size.width / 1.3,
                           child: TextField(
+                            onChanged: (text) {
+                              setState(() {
+                                if (text.isNotEmpty) {
+                                  textFocusCheck = true;
+                                } else {
+                                  textFocusCheck = false;
+                                }
+                              });
+                            },
                             keyboardType: TextInputType.multiline,
                             maxLines: null,
                             controller: _message,
@@ -389,8 +494,12 @@ class _ChatScreenState extends State<ChatScreen> {
                             focusColor: Colors.blue,
                             splashRadius: 30,
                             splashColor: Colors.blueGrey,
-                            onPressed: onSendMessage,
-                            icon: const Icon(Icons.send),
+                            onPressed: textFocusCheck
+                                ? onSendMessage
+                                : onSendAudioMessage,
+                            icon: textFocusCheck
+                                ? const Icon(Icons.send)
+                                : const Icon(Icons.mic),
                             color: Colors.white,
                           ),
                         ),
@@ -417,11 +526,20 @@ class _ChatScreenState extends State<ChatScreen> {
                 map: map,
                 displayName: _auth.currentUser!.displayName,
                 appStorage: appStorage)
-            : FileMsgTile(
-                size: size,
-                map: map,
-                displayName: _auth.currentUser!.displayName,
-                appStorage: appStorage,
-              );
+            : map["type"] == "audio"
+                ? Container(
+                    child: AudioMsgTile(
+                      size: size,
+                      map: map,
+                      displayName: _auth.currentUser!.displayName,
+                      appStorage: appStorage,
+                    ),
+                  )
+                : FileMsgTile(
+                    size: size,
+                    map: map,
+                    displayName: _auth.currentUser!.displayName,
+                    appStorage: appStorage,
+                  );
   }
 }

@@ -84,9 +84,11 @@ class _FileMsgTileState extends State<FileMsgTile> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            widget.map!["message"],
-                            style: const TextStyle(fontSize: 15),
+                          Container(
+                            width: widget.size.width * 0.4,
+                            child: Text(widget.map!["message"],
+                                style: const TextStyle(fontSize: 15),
+                                overflow: TextOverflow.ellipsis),
                           ),
                           // filePath == null
                           //     ? const CircleAvatar(
